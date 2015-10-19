@@ -26,8 +26,9 @@
 
 (defn page-layout [content]
   (with-html
-    [:div
-     (link-to "/" "Home")
+    [:div {:style "margin-top: 80px;"}
+     [:nav {:class "navbar navbar-default navbar-fixed-top"}
+      (link-to {:class "navbar-brand"} "/" "Home")]
      [:div {:class "row"} 
       [:div {:class "col-md-3"}]
       [:div {:class "col-md-6"} 
@@ -36,17 +37,22 @@
 (defn get-summary [url]
   (let [extract (summarize-blog-post url)]
     [:article 
-     [:nav
-      [:a {:href "#" :class "btn btn-sm btn-default" :onclick "return toggleSecondaries();"} "AA"]
-      [:a {:href "#" :class "btn btn-sm btn-default" :id "show-ternary-button" :onclick "return toggleTernaries();"} "AAA"]]
      [:h1 (:title extract)]
      [:hr]
      (for [x (:paragraphs extract) ]
        [:section
-        [:p {:class "lead text-primary"} (:summary x)]
+        [:p {:class "lead text-primary"} (:summary x)
+         "&nbsp;"
+         (if (> (count (:remainder x)) 0)
+
+           (link-to {:onclick (str "expandSecondary(" (Math/abs (hash (:remainder x))) ")")} "#secondary" "+"))]
+
         (if (first (:remainder x))
-          [:p {:class "text-secondary bg-info"} (first (:remainder x))])
-        [:div (map (fn [sentence] [:p {:class "text-ternary bg-warning"} sentence]) (rest (:remainder x)))]
+          [:p {:class (str  (Math/abs (hash (:remainder x))) " text-secondary bg-info")} 
+           (first (:remainder x))
+           (map (fn [sentence] [:p {:class (str (Math/abs (hash (:remainder x))) " text-ternary bg-warning")} 
+                                sentence]) (rest (:remainder x)))])
+
         [:br]
         ])]))
 
